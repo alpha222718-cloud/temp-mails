@@ -1,158 +1,194 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Temp Mail</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f7f9fc;color:#333}
-.header{background:#fff;border-bottom:1px solid #e1e4e8;padding:15px 20px}
-.logo{font-weight:700;font-size:20px;color:#2c3e50}
-.container{max-width:900px;margin:30px auto;padding:0 15px}
-.card{background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05);border:1px solid #e1e4e8;overflow:hidden;margin-bottom:30px}
-.eh{padding:20px;border-bottom:1px solid #f0f0f0;text-align:center}
-.el{font-size:13px;color:#777;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
-.ea{font-size:22px;font-weight:600;color:#2c3e50;word-break:break-all;padding:12px;background:#f8f9fa;border-radius:6px;border:1px dashed #ced4da;margin-bottom:15px;font-family:monospace}
-.bg{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.btn{padding:10px 20px;border:none;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;transition:.2s}
-.bp{background:#007bff;color:#fff}.bp:hover{background:#0069d9}
-.bs{background:#28a745;color:#fff}.bs:hover{background:#218838}
-.btn:disabled{opacity:.6;cursor:not-allowed}
-.ih{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:#f8f9fa;border-bottom:1px solid #e1e4e8;font-weight:600;color:#555}
-.rb{background:none;border:none;color:#007bff;cursor:pointer;font-size:14px}
-.es{text-align:center;padding:60px 20px;color:#999}
-.mi{display:flex;align-items:center;padding:15px 20px;border-bottom:1px solid #f0f0f0;cursor:pointer;transition:.15s}
-.mi:hover{background:#f8f9fa}
-.ma{width:40px;height:40px;border-radius:50%;background:#e9ecef;display:flex;align-items:center;justify-content:center;font-weight:700;color:#6c757d;margin-right:15px;flex-shrink:0}
-.mc{flex:1;overflow:hidden}.mf{font-weight:600;font-size:14px;color:#2c3e50}
-.ms{font-size:13px;color:#6c757d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mt{font-size:12px;color:#adb5bd;margin-left:10px}
-.st{padding:12px;border-radius:6px;margin-bottom:20px;font-size:14px;text-align:center;font-weight:600}
-.st.info{background:#e3f2fd;color:#0d47a1}.st.error{background:#ffebee;color:#c62828}.st.success{background:#e8f5e9;color:#2e7d32}
-.md{padding:20px}
-.bl{color:#007bff;cursor:pointer;font-size:14px;margin-bottom:15px;display:inline-block;font-weight:600}
-.ds{font-size:20px;margin-bottom:10px;color:#2c3e50}
-.dm{font-size:13px;color:#6c757d;margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid #eee}
-.db{font-size:15px;line-height:1.6;white-space:pre-wrap;word-break:break-word;max-height:500px;overflow-y:auto;background:#fafafa;padding:15px;border-radius:6px}
-.hidden{display:none}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temp Mail — Outil de développeur</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #f4f4f5; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Scrollbar discrète */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #09090b; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+    </style>
 </head>
-<body>
-<div class="header"><div class="logo">📧 Temp Mail</div></div>
-<div class="container">
-  <div id="status" class="st hidden"></div>
-  <div class="card">
-    <div class="eh">
-      <div class="el">Votre adresse email temporaire</div>
-      <div class="ea" id="emailDisplay">Cliquez sur Générer</div>
-      <div class="bg">
-        <button class="btn bp" onclick="generateEmail()" id="genBtn">🔄 Générer</button>
-        <button class="btn bs" onclick="copyEmail()">📋 Copier</button>
-      </div>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Conteneur principal avec ombre subtile -->
+    <div class="w-full max-w-2xl bg-[#121214] border border-[#27272a] rounded-xl shadow-2xl overflow-hidden">
+        
+        <!-- Barre de titre style MacOS/Terminal -->
+        <div class="flex items-center px-4 py-3 border-b border-[#27272a] bg-[#18181b]">
+            <div class="flex gap-2">
+                <div class="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
+                <div class="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
+                <div class="w-3 h-3 rounded-full bg-[#27c93f]"></div>
+            </div>
+            <span class="ml-4 text-xs font-medium text-[#a1a1aa] mono">temp_mail — bash</span>
+        </div>
+
+        <!-- Contenu -->
+        <div class="p-6 sm:p-8 flex flex-col gap-6">
+            
+            <!-- Section Adresse -->
+            <div class="flex flex-col gap-2">
+                <label class="text-sm text-[#a1a1aa]">Votre adresse email temporaire</label>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="flex-1 bg-[#09090b] border border-[#27272a] rounded-lg px-4 py-3 flex items-center">
+                        <span id="emailDisplay" class="mono text-sm text-[#a1a1aa] truncate">Aucune adresse générée</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="generateEmail()" id="genBtn" class="bg-[#f4f4f5] text-[#09090b] hover:bg-[#d4d4d8] px-5 py-3 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-1 sm:flex-none text-center">
+                            Générer
+                        </button>
+                        <button onclick="copyEmail()" class="bg-[#27272a] hover:bg-[#3f3f46] text-[#f4f4f5] border border-[#3f3f46] px-5 py-3 rounded-lg text-sm font-semibold transition-colors flex-1 sm:flex-none text-center">
+                            Copier
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Boîte de réception -->
+            <div class="flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-medium text-[#f4f4f5]">Boîte de réception</h2>
+                    <button onclick="loadMessages()" class="text-xs text-[#a1a1aa] hover:text-[#f4f4f5] transition-colors flex items-center gap-1.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+                        Actualiser
+                    </button>
+                </div>
+                
+                <div class="border border-[#27272a] rounded-lg bg-[#09090b] divide-y divide-[#27272a] min-h-[250px]" id="messages">
+                    <div class="p-8 text-center text-sm text-[#a1a1aa] flex flex-col items-center gap-1">
+                        <span>Aucun message.</span>
+                        <span class="text-xs text-[#52525b] mono">En attente...</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
-    <div class="ih">
-      <span>📥 Boîte de réception</span>
-      <button class="rb" onclick="loadMessages()">🔄 Actualiser</button>
+
+    <!-- Footer -->
+    <div class="mt-8 text-center">
+        <p class="text-xs text-[#52525b] mono">Les emails sont supprimés après lecture. Aucun log.</p>
     </div>
-    <div id="messages">
-      <div class="es"><div style="font-size:40px">📭</div><p>Votre boîte de réception est vide</p><p style="font-size:13px;margin-top:5px">En attente d'e-mails entrants...</p></div>
+
+    <!-- Toast simple -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-[#27272a] border border-[#3f3f46] text-[#f4f4f5] px-4 py-3 rounded-lg text-sm shadow-lg translate-y-10 opacity-0 transition-all duration-300 flex items-center gap-2">
+        <span class="text-[#27c93f]">✓</span>
+        <span id="toastMsg"></span>
     </div>
-  </div>
-</div>
 
-<script>
-let token = null, email = null, interval = null, isReading = false;
+    <script>
+        let token = null, email = null, interval = null, isReading = false;
 
-function showSt(msg, type) {
-  const el = document.getElementById('status');
-  el.className = 'st ' + type; el.textContent = msg; el.classList.remove('hidden');
-  setTimeout(() => el.classList.add('hidden'), 4000);
-}
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            t.classList.remove('translate-y-10', 'opacity-0');
+            setTimeout(() => t.classList.add('translate-y-10', 'opacity-0'), 3000);
+        }
 
-async function generateEmail() {
-  const btn = document.getElementById('genBtn');
-  btn.disabled = true; btn.textContent = '...';
-  try {
-    const res = await fetch('/api/generate', { method: 'POST' });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Erreur');
-    
-    token = data.token; email = data.address;
-    document.getElementById('emailDisplay').textContent = email;
-    showSt('✅ Nouvelle adresse générée !', 'success');
-    
-    isReading = false;
-    document.getElementById('messages').innerHTML = '<div class="es"><div style="font-size:40px">📭</div><p>Boîte vide</p><p style="font-size:13px;margin-top:5px">En attente...</p></div>';
-    
-    loadMessages();
-    if (interval) clearInterval(interval);
-    interval = setInterval(() => { if (!isReading) loadMessages(); }, 5000);
-  } catch (e) {
-    showSt('❌ ' + e.message, 'error');
-  } finally {
-    btn.disabled = false; btn.textContent = '🔄 Générer';
-  }
-}
+        async function generateEmail() {
+            const btn = document.getElementById('genBtn');
+            btn.disabled = true; btn.textContent = '...';
+            try {
+                const res = await fetch('/api/generate', { method: 'POST' });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Erreur');
+                token = data.token; email = data.address;
+                const disp = document.getElementById('emailDisplay');
+                disp.textContent = email;
+                disp.classList.remove('text-[#a1a1aa]');
+                disp.classList.add('text-[#f4f4f5]');
+                showToast('Adresse générée');
+                isReading = false;
+                document.getElementById('messages').innerHTML = '<div class="p-8 text-center text-sm text-[#a1a1aa]">En attente...</div>';
+                loadMessages();
+                if (interval) clearInterval(interval);
+                interval = setInterval(() => { if (!isReading) loadMessages(); }, 5000);
+            } catch (e) {
+                showToast(e.message);
+            } finally {
+                btn.disabled = false; btn.textContent = 'Générer';
+            }
+        }
 
-async function loadMessages() {
-  if (!token) return;
-  try {
-    const res = await fetch('/api/messages', { headers: { Authorization: 'Bearer ' + token } });
-    const data = await res.json();
-    if (isReading) return;
-    renderList(data['hydra:member'] || []);
-  } catch (e) {}
-}
+        async function loadMessages() {
+            if (!token || isReading) return;
+            try {
+                const res = await fetch('/api/messages', { headers: { Authorization: 'Bearer ' + token } });
+                const data = await res.json();
+                renderList(data['hydra:member'] || []);
+            } catch (e) {}
+        }
 
-function renderList(msgs) {
-  const c = document.getElementById('messages');
-  if (!msgs.length) {
-    if (!document.querySelector('.es')) {
-      c.innerHTML = '<div class="es"><div style="font-size:40px">📭</div><p>Boîte vide</p><p style="font-size:13px;margin-top:5px">En attente...</p></div>';
-    }
-    return;
-  }
-  c.innerHTML = '';
-  msgs.forEach(m => {
-    const div = document.createElement('div');
-    div.className = 'mi';
-    const init = (m.from?.address || '?')[0].toUpperCase();
-    const time = new Date(m.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    div.innerHTML = `<div class="ma">${init}</div><div class="mc"><div class="mf">${m.from?.address || '?'}</div><div class="ms">${m.subject || '(Sans objet)'}</div></div><div class="mt">${time}</div>`;
-    div.onclick = () => openMsg(m.id);
-    c.appendChild(div);
-  });
-}
+        function renderList(msgs) {
+            const c = document.getElementById('messages');
+            if (!msgs.length) {
+                if (!c.querySelector('.empty-msg')) {
+                    c.innerHTML = '<div class="empty-msg p-8 text-center text-sm text-[#a1a1aa] flex flex-col items-center gap-1"><span>Aucun message.</span><span class="text-xs text-[#52525b] mono">En attente...</span></div>';
+                }
+                return;
+            }
+            c.innerHTML = '';
+            msgs.forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'p-4 hover:bg-[#18181b] cursor-pointer transition-colors flex flex-col gap-1';
+                const time = new Date(m.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                div.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <span class="text-sm font-medium text-[#f4f4f5] truncate pr-4">${m.from?.address || 'Inconnu'}</span>
+                        <span class="text-xs text-[#52525b] mono shrink-0">${time}</span>
+                    </div>
+                    <span class="text-sm text-[#a1a1aa] truncate">${m.subject || '(Sans objet)'}</span>
+                `;
+                div.onclick = () => openMsg(m.id);
+                c.appendChild(div);
+            });
+        }
 
-async function openMsg(id) {
-  if (!token) return;
-  isReading = true;
-  try {
-    const res = await fetch('/api/messages/' + id, { headers: { Authorization: 'Bearer ' + token } });
-    const d = await res.json();
-    document.getElementById('messages').innerHTML = `
-      <div class="md">
-        <span class="bl" onclick="backToList()">← Retour</span>
-        <h2 class="ds">${d.subject || '(Sans objet)'}</h2>
-        <div class="dm">De: ${d.from?.address} | ${new Date(d.createdAt).toLocaleString('fr-FR')}</div>
-        <div class="db">${d.text || (d.html ? d.html.join(' ') : '(Vide)')}</div>
-      </div>`;
-  } catch (e) {
-    isReading = false;
-  }
-}
+        async function openMsg(id) {
+            if (!token) return;
+            isReading = true;
+            const c = document.getElementById('messages');
+            c.innerHTML = '<div class="p-8 text-center text-sm text-[#a1a1aa]">Chargement...</div>';
+            try {
+                const res = await fetch('/api/messages/' + id, { headers: { Authorization: 'Bearer ' + token } });
+                const d = await res.json();
+                c.innerHTML = `
+                    <div class="p-6 flex flex-col gap-4">
+                        <button onclick="backToList()" class="text-xs text-[#a1a1aa] hover:text-[#f4f4f5] flex items-center gap-1 self-start">← Retour</button>
+                        <div class="border-b border-[#27272a] pb-4">
+                            <h2 class="text-lg font-medium text-[#f4f4f5] mb-1 break-words">${d.subject || '(Sans objet)'}</h2>
+                            <div class="flex flex-col gap-1 text-xs text-[#a1a1aa] mono">
+                                <span>De: ${d.from?.address}</span>
+                                <span>Reçu: ${new Date(d.createdAt).toLocaleString('fr-FR')}</span>
+                            </div>
+                        </div>
+                        <div class="text-sm text-[#d4d4d8] leading-relaxed whitespace-pre-wrap break-words max-h-[400px] overflow-y-auto">
+                            ${d.text || (d.html ? d.html.join(' ') : '(Message vide)')}
+                        </div>
+                    </div>`;
+            } catch (e) {
+                isReading = false;
+                showToast('Erreur de chargement');
+            }
+        }
 
-function backToList() {
-  isReading = false;
-  loadMessages();
-}
+        function backToList() { isReading = false; loadMessages(); }
 
-function copyEmail() {
-  if (!email) return showSt('Générez une adresse d\'abord', 'error');
-  navigator.clipboard.writeText(email);
-  showSt('📋 Copié !', 'success');
-}
-</script>
+        function copyEmail() {
+            if (!email) return showToast('Générez une adresse d\'abord');
+            navigator.clipboard.writeText(email);
+            showToast('Adresse copiée');
+        }
+    </script>
 </body>
 </html>
